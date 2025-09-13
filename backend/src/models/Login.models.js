@@ -8,6 +8,9 @@ const LoginShcema=new mongoose.Schema({
     password:{
         type:String,
         required:true
+    },
+    email:{
+        type:String
     }
 },{collection:'login'})
 
