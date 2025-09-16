@@ -9,6 +9,6 @@ const bookingHistorySchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-});
+},{collection:'BookingHistory'});
 
 export const BookingHistoryModel = mongoose.model("BookingHistory", bookingHistorySchema);

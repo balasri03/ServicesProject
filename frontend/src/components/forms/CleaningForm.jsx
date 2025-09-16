@@ -150,7 +150,7 @@ const CleaningForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("/api/v3/form", data);
+      await axios.post("/customer/cleaning", data);
       alert("Cleaning worker details submitted and saved!");
       setData({
         name: "",
@@ -243,7 +243,7 @@ const CleaningForm = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             type="submit"
-            className="w-full bg-blue-600 py-3 rounded-xl font-semibold text-white shadow-lg hover:bg-green-500 transition"
+            className="w-full bg-blue-600 py-3 rounded-xl font-semibold text-white shadow-lg hover:bg-blue-500 transition"
           >
             Submit
           </motion.button>

@@ -7,6 +7,12 @@ import WorkerRegister from "./components/WorkerRegister";
 import WorkerLogin from "./components/WorkerLogin";
 import AdminLogin from "./components/AdminLogin";
 import AdminSignup from "./components/AdminSignup";
+import PlumbingForm from "./components/forms/PlumbingForm";
+import ElectricalForm from "./components/forms/ElectricalForm"
+import PaintingForm from "./components/forms/PaintingForm";
+import CarpentryForm from "./components/forms/CarpentryForm";
+import AdminDashboard from "./components/AdminDashboard"
+import WorkerDashboard from "./components/WorkerDashboard"
 
 function App() {
   return (
@@ -21,6 +27,18 @@ function App() {
          <Route path="/workerlogin" element={<WorkerLogin />} />
           <Route path="/adminlogin" element={<AdminLogin/>} />
            <Route path="/adminsignup" element={<AdminSignup />} />
+
+
+           <Route path="/plumbing" element={<PlumbingForm />} />
+        
+        <Route path="/electrical" element={<ElectricalForm />} />
+       
+        <Route path="/painting" element={<PaintingForm />} />
+           <Route path="/carpentry" element={<CarpentryForm/>} />
+           <Route path="/worker-dashboard" element={<WorkerDashboard/>} />
+
+           <Route path="/admin/dashboard" element={<AdminDashboard/>} />
+
 
         {/* Add other routes as needed */}
       </Routes>

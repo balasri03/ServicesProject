@@ -1,32 +1,48 @@
-import React, { useState } from "react";
-import axios from "./Axios_config.js";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "./Axios_config.js";
 
 const WorkerLogin = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    setMessage("");
+    setError("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setMessage("");
+    setError("");
+    setLoading(true);
     try {
-      const res = await axios.post("/api/workerslogin", formData);
-      alert(res.data.msg);
+      const res = await axios.post("/api/workerslogin", formData); // ✅ check your backend route
+      setMessage(res.data.msg || "Login successful!");
       localStorage.setItem("workerId", res.data.workerId);
       localStorage.setItem("token", res.data.token);
-      navigate("/availability");
+      // Redirect after a short delay so the success message is visible
+      setTimeout(() => navigate("/worker-dashboard"), 800);
     } catch (err) {
-      alert(err.response?.data?.msg || "Login failed");
+      setError(err.response?.data?.msg || "Login failed");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div style={{ maxWidth: "400px", margin: "auto" }}>
-      <h2>Worker Login</h2>
-      <form onSubmit={handleSubmit}>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white shadow-lg rounded-xl p-8 w-full max-w-md flex flex-col gap-4"
+      >
+        <h2 className="text-2xl font-bold text-center mb-2 text-indigo-700">
+          Worker Login
+        </h2>
         <input
           type="email"
           name="email"
@@ -34,8 +50,9 @@ const WorkerLogin = () => {
           value={formData.email}
           onChange={handleChange}
           required
-        /><br /><br />
-
+          autoComplete="username"
+          className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+        />
         <input
           type="password"
           name="password"
@@ -43,9 +60,30 @@ const WorkerLogin = () => {
           value={formData.password}
           onChange={handleChange}
           required
-        /><br /><br />
-
-        <button type="submit">Login</button>
+          autoComplete="current-password"
+          className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+        />
+        <button
+          type="submit"
+          disabled={loading}
+          className={`py-2 rounded-lg font-semibold text-white transition ${
+            loading
+              ? "bg-indigo-400 cursor-not-allowed"
+              : "bg-indigo-600 hover:bg-indigo-700"
+          }`}
+        >
+          {loading ? "Logging in..." : "Login"}
+        </button>
+        {message && (
+          <div className="text-green-600 text-center font-medium mt-2">
+            {message}
+          </div>
+        )}
+        {error && (
+          <div className="text-red-600 text-center font-medium mt-2">
+            {error}
+          </div>
+        )}
       </form>
     </div>
   );

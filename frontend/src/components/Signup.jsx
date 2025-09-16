@@ -1,13 +1,12 @@
-import axios from "./Axios_config.js";
-import { useState } from "react";
-import { motion } from "framer-motion";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
+import { motion } from "framer-motion";
+import { useState } from "react";
+import axios from "./Axios_config.js";
+
 function SignUp() {
-  // --- State for showing/hiding passwords ---
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // --- State to store form data ---
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -16,20 +15,29 @@ function SignUp() {
     mobileNumber: "",
   });
 
-  // --- Handler to update state when user types ---
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
+    setError("");
+    setMessage("");
   };
 
-  // --- Handler for form submission ---
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Only send required fields to backend
+
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match!");
+      return;
+    }
+
     const { fullName, email, password, mobileNumber } = formData;
+
     try {
       const response = await axios.post("/api/v1/signup", {
         fullName,
@@ -37,23 +45,26 @@ function SignUp() {
         password,
         mobileNumber,
       });
-      // Handle success (show message, redirect, etc.)
-      alert("Signup successful!");
+      setMessage("Signup successful!");
+      setFormData({
+        fullName: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+        mobileNumber: "",
+      });
     } catch (error) {
-      // Handle error (show message)
-      alert(
-        "Signup failed: " + (error.response?.data?.message || error.message)
-      );
+      setError(error.response?.data?.message || "Signup failed. Please try again.");
     }
   };
+
   return (
     <div
       className="min-h-screen flex items-center justify-center sm:justify-end relative"
       style={{
-        backgroundImage: `url("./signup.jpg")`,
+        backgroundImage: `url("/signup.jpg")`,
         backgroundSize: "cover",
         backgroundPosition: "center",
-
       }}
     >
       <div className="absolute inset-0 bg-black/50"></div>
@@ -69,14 +80,14 @@ function SignUp() {
         </h2>
 
         <form className="space-y-6" onSubmit={handleSubmit}>
-          {/* Name */}
+          {/* Full Name */}
           <div>
             <label className="block text-sm mb-2 text-white">Full Name</label>
             <input
               type="text"
-              name="fullName" // Added name attribute
-              value={formData.fullName} // Controlled component
-              onChange={handleChange} // Added onChange handler
+              name="fullName"
+              value={formData.fullName}
+              onChange={handleChange}
               placeholder="Enter your name"
               className="w-full px-4 py-2 rounded-xl bg-white/20 text-white border border-white/30 focus:outline-none focus:ring-2 focus:ring-indigo-400 placeholder-gray-300"
               required
@@ -96,11 +107,10 @@ function SignUp() {
               required
             />
           </div>
+
           {/* Mobile Number */}
           <div>
-            <label className="block text-sm mb-2 text-white">
-              Mobile Number
-            </label>
+            <label className="block text-sm mb-2 text-white">Mobile Number</label>
             <input
               type="text"
               name="mobileNumber"
@@ -118,10 +128,11 @@ function SignUp() {
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
-                name="password" // Added name attribute
-                value={formData.password} // Controlled component
-                onChange={handleChange} // Added onChange handler
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
                 placeholder="Enter your password"
+                autoComplete="new-password"
                 className="w-full px-4 py-2 pr-10 rounded-xl bg-white/20 text-white border border-white/30 focus:outline-none focus:ring-2 focus:ring-indigo-400 placeholder-gray-300"
                 required
               />
@@ -138,6 +149,37 @@ function SignUp() {
               </button>
             </div>
           </div>
+
+          {/* Confirm Password */}
+          <div>
+            <label className="block text-sm mb-2 text-white">Confirm Password</label>
+            <div className="relative">
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                placeholder="Confirm your password"
+                autoComplete="new-password"
+                className="w-full px-4 py-2 pr-10 rounded-xl bg-white/20 text-white border border-white/30 focus:outline-none focus:ring-2 focus:ring-indigo-400 placeholder-gray-300"
+                required
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-2.5 text-gray-300 hover:text-white"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              >
+                {showConfirmPassword ? (
+                  <EyeSlashIcon className="h-5 w-5" />
+                ) : (
+                  <EyeIcon className="h-5 w-5" />
+                )}
+              </button>
+            </div>
+          </div>
+
+          {error && <p className="text-red-400 text-center">{error}</p>}
+          {message && <p className="text-green-400 text-center">{message}</p>}
 
           <motion.button
             whileHover={{ scale: 1.05 }}

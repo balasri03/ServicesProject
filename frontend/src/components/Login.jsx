@@ -1,8 +1,7 @@
 import { motion } from "framer-motion";
-import axios from "./Axios_config.js";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-
+import { useNavigate, Link } from "react-router-dom";
+import axios from "./Axios_config.js";
 
 function Login() {
   const navigate = useNavigate();
@@ -11,10 +10,14 @@ function Login() {
     email: "",
     password: "",
   });
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    setError("");
+    setMessage("");
   };
 
   const handleSubmit = async (e) => {
@@ -22,10 +25,14 @@ function Login() {
     try {
       const response = await axios.post("/api/v2/login", formData);
       console.log("Login response:", response.data);
-      alert("Login successful!");
-      navigate("/"); // ✅ go back to Home
-    } catch (error) {
-      alert("Login failed: " + (error.response?.data?.message || error.message));
+
+      setMessage("Login successful!");
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("userId", response.data.userId);
+
+      setTimeout(() => navigate("/"), 1000); // ✅ redirect after 1s
+    } catch (err) {
+      setError(err.response?.data?.message || "Login failed, please try again.");
     }
   };
 
@@ -59,8 +66,8 @@ function Login() {
               value={formData.mobileNumber}
               onChange={handleChange}
               placeholder="Enter mobile number"
+              pattern="[0-9]{10}"
               className="w-full px-4 py-2 rounded-xl bg-white/20 text-white border border-white/30"
-              required
             />
           </div>
 
@@ -72,8 +79,8 @@ function Login() {
               value={formData.email}
               onChange={handleChange}
               placeholder="Enter email"
-              className="w-full px-4 py-2 rounded-xl bg-white/20 text-white border border-white/30"
               required
+              className="w-full px-4 py-2 rounded-xl bg-white/20 text-white border border-white/30"
             />
           </div>
 
@@ -85,10 +92,14 @@ function Login() {
               value={formData.password}
               onChange={handleChange}
               placeholder="Enter password"
-              className="w-full px-4 py-2 rounded-xl bg-white/20 text-white border border-white/30"
               required
+              autoComplete="current-password"
+              className="w-full px-4 py-2 rounded-xl bg-white/20 text-white border border-white/30"
             />
           </div>
+
+          {error && <p className="text-red-400 text-center">{error}</p>}
+          {message && <p className="text-green-400 text-center">{message}</p>}
 
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -102,9 +113,9 @@ function Login() {
 
         <p className="mt-6 text-center text-sm text-gray-200">
           Don’t have an account?{" "}
-          <a href="/signup" className="text-indigo-400 hover:text-indigo-300">
+          <Link to="/signup" className="text-indigo-400 hover:text-indigo-300">
             Sign Up
-          </a>
+          </Link>
         </p>
       </motion.div>
     </div>

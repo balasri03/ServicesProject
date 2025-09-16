@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import axios from "./Axios_config.js";
 
 const WorkerRegister = () => {
@@ -10,11 +10,22 @@ const WorkerRegister = () => {
     availableTime: "",
     works: [],
   });
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const availableWorks = ["Plumber", "Electrician", "Cleaner", "Painter", "Carpenter"];
+  const availableWorks = [
+    "Plumber",
+    "Electrician",
+    "Cleaner",
+    "Painter",
+    "Carpenter",
+  ];
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    setMessage("");
+    setError("");
   };
 
   const handleWorksChange = (e) => {
@@ -26,13 +37,18 @@ const WorkerRegister = () => {
       }
     }
     setFormData({ ...formData, works: selectedWorks });
+    setMessage("");
+    setError("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setMessage("");
+    setError("");
+    setLoading(true);
     try {
-      const res = await axios.post("/api/workersregister", formData);
-      alert(res.data.msg);
+      const res = await axios.post("api/workersregister", formData); // ✅ check backend route
+      setMessage(res.data.msg || "Registration successful!");
       setFormData({
         name: "",
         email: "",
@@ -42,12 +58,14 @@ const WorkerRegister = () => {
         works: [],
       });
     } catch (err) {
-      alert(err.response?.data?.msg || "Something went wrong");
+      setError(err.response?.data?.msg || "Something went wrong");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-6">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100 p-6">
       <div className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-md">
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
           Worker Registration
@@ -70,6 +88,7 @@ const WorkerRegister = () => {
             value={formData.email}
             onChange={handleChange}
             required
+            autoComplete="username"
             className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
           />
 
@@ -80,16 +99,18 @@ const WorkerRegister = () => {
             value={formData.password}
             onChange={handleChange}
             required
+            autoComplete="new-password"
             className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
           />
 
           <input
-            type="text"
+            type="tel"
             name="contactNumber"
             placeholder="Contact Number"
             value={formData.contactNumber}
             onChange={handleChange}
             required
+            pattern="[0-9]{10}"
             className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
           />
 
@@ -123,10 +144,26 @@ const WorkerRegister = () => {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg shadow-md hover:bg-blue-700 transition"
+            disabled={loading}
+            className={`w-full font-semibold py-2 rounded-lg shadow-md transition text-white ${
+              loading
+                ? "bg-blue-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700"
+            }`}
           >
-            Register
+            {loading ? "Registering..." : "Register"}
           </button>
+
+          {message && (
+            <div className="text-green-600 text-center font-medium mt-2">
+              {message}
+            </div>
+          )}
+          {error && (
+            <div className="text-red-600 text-center font-medium mt-2">
+              {error}
+            </div>
+          )}
         </form>
       </div>
     </div>
